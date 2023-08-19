@@ -593,10 +593,10 @@ function render(now) {
   ctx.arc(centerX, centerY, maxR, 0, Math.PI * 2)
   ctx.stroke()
   if (enableBga) {
-    ctx.fillStyle = 'rgba(0,0,0,0.8)'
+    ctx.fillStyle = 'rgba(80,80,80,0.4)'
     ctx.fill()
   } else {
-    ctx.fillStyle = 'rgba(32,32,32,0.8)'
+    ctx.fillStyle = 'rgba(128,128,128,0.4)'
     ctx.fill()
   }
 
@@ -628,7 +628,7 @@ function render(now) {
       if (chartHeader.OFFSET) {
         const offset = parseFloat(chartHeader.OFFSET)
         if (!isNaN(offset)) {
-          startTs -= offset * 1000
+          startTs += offset * 1000
         }
       }
       updateLaneOnState(-1, currentTs)
@@ -657,9 +657,9 @@ function render(now) {
   updateLaneOnState(previousTs, currentTs)
   // black out "off" lanes
   const laneBgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxR)
-  laneBgGradient.addColorStop(0, 'rgba(255,255,255,0)');
-  laneBgGradient.addColorStop(0.2, 'rgba(255,255,255,0.1)');
-  laneBgGradient.addColorStop(1, enableBga ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.4)');
+  laneBgGradient.addColorStop(0, 'rgba(0,0,0,0.3)');
+  laneBgGradient.addColorStop(0.2, 'rgba(0,0,0,0.4)');
+  laneBgGradient.addColorStop(1, enableBga ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.7)');
   ctx.fillStyle = laneBgGradient
   ctx.beginPath()
   for (let i = 0; i < 60 * laneEffectMul; i++) {
@@ -1037,6 +1037,7 @@ function render(now) {
     ctx.stroke()
   }
 
+  // circle mask
   {
     ctx.globalCompositeOperation = 'destination-in'
     ctx.beginPath();
