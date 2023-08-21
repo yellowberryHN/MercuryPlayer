@@ -584,7 +584,8 @@ function render(now) {
 
   drawCount.actualFrame++
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  const centerX = canvas.width / 2, centerY = canvas.height / 2
+  const cabView = (canvas.width == 1080 && canvas.height == 1920)
+  const centerX = canvas.width / 2, centerY = cabView ? (canvas.height / 2) - 58 : canvas.height / 2
 
   // outer ring
   ctx.lineWidth = 3
@@ -1284,11 +1285,12 @@ function resize() {
   const w = Math.round(window.innerWidth * devicePixelRatio), h = Math.round(window.innerHeight * devicePixelRatio)
   canvas.width = w
   canvas.height = h
-  maxR = Math.round(Math.min(w, h) * 0.45)
+  const cabView = (canvas.width == 1080 && canvas.height == 1920)
+  maxR = cabView ? 530 : Math.round(Math.min(w, h) * 0.45)
   drawForNextFrame = true
   displayRatio = Math.max(w, h) / 1920
   const wView = window.innerWidth, hView = window.innerHeight
-  const centerX = wView / 2, centerY = hView / 2
+  const centerX = wView / 2, centerY = cabView ? (hView / 2) - 58 : hView / 2
   const rView = Math.round(Math.min(wView, hView) * 0.45)
 
   if (enableBga) {
