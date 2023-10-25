@@ -150,38 +150,43 @@ fetch('Table/music_info.json').then(r=>r.json()).then(r => {
   console.error('failed loading music table', e)
 })
 const seContext = new AudioContext
-//const bgmSrc = seContext.createMediaElementSource(bgm)
-//bgmSrc.connect(seContext.destination)
+
 let seBuffer = null
-fetch('note.wav').then(r => r.arrayBuffer()).then(r => {
-  seContext.decodeAudioData(r, buf => {
-    if (buf) {
-      seBuffer = buf
-    } else {
-      console.error('decode failed')
-    }
-  }, e => console.error(e))
-})
 let seRBuffer = null
-fetch('232.adx.wav').then(r => r.arrayBuffer()).then(r => {
-  seContext.decodeAudioData(r, buf => {
-    if (buf) {
-      seRBuffer = buf
-    } else {
-      console.error('decode failed')
-    }
-  }, e => console.error(e))
-})
 let clkBuffer = null
-fetch('52.hca.wav').then(r => r.arrayBuffer()).then(r => {
-  seContext.decodeAudioData(r, buf => {
-    if (buf) {
-      clkBuffer = buf
-    } else {
-      console.error('decode failed')
-    }
-  }, e => console.error(e))
-})
+
+if (window.location.protocol !== "file:") {
+  fetch('note.wav').then(r => r.arrayBuffer()).then(r => {
+    seContext.decodeAudioData(r, buf => {
+      if (buf) {
+        seBuffer = buf
+      } else {
+        console.error('decode failed')
+      }
+    }, e => console.error(e))
+  })
+
+  fetch('rnote.wav').then(r => r.arrayBuffer()).then(r => {
+    seContext.decodeAudioData(r, buf => {
+      if (buf) {
+        seRBuffer = buf
+      } else {
+        console.error('decode failed')
+      }
+    }, e => console.error(e))
+  })
+
+  fetch('52.hca.wav').then(r => r.arrayBuffer()).then(r => {
+    seContext.decodeAudioData(r, buf => {
+      if (buf) {
+        clkBuffer = buf
+      } else {
+        console.error('decode failed')
+      }
+    }, e => console.error(e))
+  })
+}
+
 function loadUsingSelect() {
   const id = music_select.value | 0
   const diffi = diffi_select.value | 0
@@ -1100,7 +1105,7 @@ function render(now) {
 
   {
     while (pendingSeTrigger.length && pendingSeTrigger[0] - currentTs < 100) {
-      if (!seBuffer) break
+      if (!seBuffer && !clkBuffer) break
       if (pendingSeTrigger[0] - currentTs > -25) {
         let bufSrc = seContext.createBufferSource()
         bufSrc.buffer = seBuffer
@@ -1113,7 +1118,7 @@ function render(now) {
       if (!seRBuffer) break
       if (pendingSeRTrigger[0] - currentTs > -25) {
         let bufSrc = seContext.createBufferSource()
-        bufSrc.buffer = seRBuffer
+        bufSrc.buffer = clkBuffer != null ? clkBuffer : seRBuffer
         bufSrc.connect(gain)
         bufSrc.start(seContext.currentTime + Math.max(0, pendingSeRTrigger[0] - currentTs) / 1000)
       }
