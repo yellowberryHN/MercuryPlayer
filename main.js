@@ -764,7 +764,8 @@ function render(now) {
   }
   {
     const drawHoldList = getHoldsForDraw(currentDistance, currentTs, drawDistance);
-    ctx.fillStyle = 'rgba(207,162,93, 0.7)'
+    //ctx.fillStyle = 'rgba(207,162,93, 0.7)'
+    ctx.fillStyle = 'rgba(220,200,90, 0.7)'
     drawHoldList.forEach(nodes => {
       ctx.beginPath()
       const nodeCount = nodes.length
@@ -876,7 +877,8 @@ function render(now) {
   const colorMap = [
     ['hold', 'rgb(88,75,47)'],
     ['touch', 'rgb(216,45,184)'],
-    ['chain', 'rgb(157,122,40)'],
+    //['chain', 'rgb(157,122,40)'],
+    ['chain', 'rgb(234,234,170)'],
     ['flickL', 'rgb(246,159,55)'],
     ['flickR', 'rgb(98,251,43)'],
     ['snapIn', 'rgb(203,29,25)'],
