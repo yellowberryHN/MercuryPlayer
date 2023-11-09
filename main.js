@@ -1,5 +1,7 @@
 //window.addEventListener('load', function () {
 
+const mpVersion = '1.2.0';
+
 let maxR
 
 /** @type {CanvasRenderingContext2D} */
@@ -1092,7 +1094,9 @@ function render(now) {
       `${playedNotesCount[0]} (${playedNotesCount[1]}) / ${comboInfo[0]} (${comboInfo[1]})`,
       `${playInfoStat.min}:${playInfoStat.sec}.${playInfoStat.milisec} (${playInfoStat.section}/${playInfoStat.beat})`,
       `BPM: ${playInfoStat.bpm}`,
-      `SFL: ${playInfoStat.sfl}`
+      `SFL: ${playInfoStat.sfl}`,
+      ``,
+      `v${mpVersion}`
     ]
     if (reversing) {
       playInfoText.push('Reversing')
@@ -1578,5 +1582,7 @@ bgmCtr.addEventListener('play', play)
 bgmCtr.addEventListener('volumeChange', v => {
   bgmGain.gain.value = v
 })
+
+document.title += ` v${mpVersion}`
 
 //})
