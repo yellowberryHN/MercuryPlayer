@@ -189,6 +189,39 @@ if (window.location.protocol !== "file:") {
   })
 }
 
+document.addEventListener('dragover', (e) => {
+  e.preventDefault()
+});
+document.addEventListener('drop', (e) => {
+  e.preventDefault()
+  var files = e.dataTransfer.files;
+  for (var i = 0; i < files.length; i++) {
+    var ext = files[i]['name'].split('.').pop();
+
+    const dT = new DataTransfer();
+    dT.items.add(e.dataTransfer.files[i]);
+
+    switch (ext) {
+      case 'wav':
+        document.getElementById('se_file').files = dT.files;
+        se_file_load(); // immediately load
+        break;
+      case 'mer':
+        document.getElementById('music_file').files = dT.files;
+        break;
+      case 'mp3':
+        document.getElementById('bgm_file').files = dT.files;
+        break;
+      default:
+        document.getElementById('bgm_file').files = dT.files;
+        break;
+    }
+  }
+  if (files.length >= 2) { // wav already loaded?
+    loadUsingFile();
+  }
+});
+
 function loadUsingSelect() {
   const id = music_select.value | 0
   const diffi = diffi_select.value | 0
@@ -208,7 +241,7 @@ function loadUsingFile() {
     bgmFileName = 'file'
     setBgm(URL.createObjectURL(bgm_file.files[0]))
   } else {
-    alert('choose file')
+    alert('Please choose remaining files.')
   }
 }
 music_select.addEventListener('change', e => {
@@ -564,8 +597,8 @@ toggle_long_audio.addEventListener('input', () => {
 setInterval(() => {
   if (stats.childNodes.length == 0) stats.appendChild(document.createTextNode(''))
   stats.childNodes[0].nodeValue = [
-    `frame draw: ${drawCount.frame}`,
-    `frame actual draw: ${drawCount.actualFrame}`,
+    `Frame draw: ${drawCount.frame}`,
+    `Frame actual draw: ${drawCount.actualFrame}`,
   ].join('\n')
   drawCount.frame = 0
   drawCount.actualFrame = 0
@@ -1345,7 +1378,7 @@ se_volume.addEventListener('change', () => {
   gain.gain.value = se_volume.value / 100
 })
 
-se_file.addEventListener('change', () => {
+function se_file_load() {
   const reader = new FileReader()
   reader.readAsArrayBuffer(se_file.files[0])
   reader.onload = e => {
@@ -1357,7 +1390,9 @@ se_file.addEventListener('change', () => {
       }
     }, e => console.error(e))
   }
-})
+}
+
+se_file.addEventListener('change', se_file_load)
 
 class BgmController {
   __playSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"context-fill\" fill-opacity=\"context-fill-opacity\"><path d=\"m2.992 13.498 0-10.996a1.5 1.5 0 0 1 2.245-1.303l9.621 5.498a1.5 1.5 0 0 1 0 2.605L5.237 14.8a1.5 1.5 0 0 1-2.245-1.302z\"/></svg>"
