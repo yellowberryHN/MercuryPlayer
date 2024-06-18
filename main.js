@@ -155,6 +155,7 @@ if (remoteRun) {
     music_select.dispatchEvent(new Event('change'))
   }).catch(e => {
     console.error('failed loading music table', e)
+    toggle_officials.parentNode.style.display = 'none'
   })
 
   fetch('sound/tap.wav').then(r => r.arrayBuffer()).then(r => {
