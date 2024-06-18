@@ -149,7 +149,7 @@ if (remoteRun) {
       diffi = [music.DifficultyNormalLv, music.DifficultyHardLv, music.DifficultyExtremeLv]
       if (music.DifficultyInfernoLv != 0) diffi.push(music.DifficultyInfernoLv)
       let title = cutText(music.MusicMessage), artist = cutText(music.ArtistMessage)
-      option.textContent = `${music.AssetDirectory}: ${title} - ${artist}`
+      option.textContent = `${title} - ${artist} [${music.AssetDirectory}]`
     })
     music_select.value = music_select.children[0].value
     music_select.dispatchEvent(new Event('change'))
