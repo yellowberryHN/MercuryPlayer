@@ -23,10 +23,34 @@ input {
     padding-bottom: 0.5px;
 }
 .hide-control div:not(.no-hide) {
-    opacity: 0;
+    display: none !important; /* lol */
 }
 .long-audio audio {
     width: 1000px;
+}
+#music_select_div {
+    display: none;
+}
+.remote.officials #music_select_div{
+    display: initial;
+}
+.remote.officials #music_file_div{
+    display: none;
+}
+
+/* only show relevant UI for local/remote mode */
+
+.show-remote {
+    display: none;
+}
+.hide-remote {
+    display: initial;
+}
+.remote .show-remote {
+    display: initial;
+}
+.remote .hide-remote {
+    display: none;
 }
 
 .bgm, .bgm * {

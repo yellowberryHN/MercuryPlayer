@@ -1,6 +1,6 @@
-//window.addEventListener('load', function () {
+const mpVersion = '1.3.0';
 
-const mpVersion = '1.2.0';
+let remoteRun = window.location.protocol !== "file:"
 
 let maxR
 
@@ -56,6 +56,10 @@ let seTrigger = []
 let pendingSeTrigger = []
 let seRTrigger = []
 let pendingSeRTrigger = []
+let seSwipeTrigger = []
+let pendingSeSwipeTrigger = []
+let seBonusTrigger = []
+let pendingSeBonusTrigger = []
 let seClockTrigger = []
 let pendingSeClockTrigger = []
 let comboInfo = [0,0]
@@ -105,16 +109,6 @@ const TICK_PER_GAME_SECTION = 1920;
 const TICK_PER_BEAT = TICK_PER_GAME_SECTION / 3.8;
 let RENDER_DISTANCE = 750
 
-//parseNotesFromFile('MusicData/S00-003/S00-003_02.mer'); setBgm('0.wav')
-//parseNotesFromFile('MusicData/S02-085/S02-085_02.mer')
-//parseNotesFromFile('MusicData/S02-225/S02-225_02.mer')
-//parseNotesFromFile('MusicData/S02-218/S02-218_02.mer'); setBgm('music001282.wav')
-//parseNotesFromFile('MusicData/S00-004/S00-004_02.mer'); setBgm('4.wav')
-//parseNotesFromFile('MusicData/S01-055/S01-055_02 (2).mer')
-setTimeout(function() {
-const playbackId = 'S03-062'
-//parseNotesFromFile(`MusicData/${playbackId}/${playbackId}_03.mer`); setBgm('Sound/Bgm/output/MER_BGM_'+playbackId.replace('-', '_')+'.m4a')
-})
 let musicTable
 function cutText(s) {
   const charRenderSize = s.split('').map(c=> c.match(/[a-zA-Z0-9 ]/)?1:2)
@@ -126,39 +120,44 @@ function cutText(s) {
     if (renderLength > 25) return s.substr(0, i) + '...'
   }
 }
-fetch('Table/music_info.json').then(r=>r.json()).then(r => {
-  musicTable = {}
-  music_select.parentNode.style.display = ''
-  music_file.parentNode.style.display = 'none'
-  const keys = Object.keys(r)
-  keys.sort((a,b) => a>b?1:-1)
-  keys.forEach(open => {
-    const option = music_select.appendChild(document.createElement('option'))
-    option.setAttribute('disabled', '')
-    option.textContent = open
-    r[open].sort((a,b) => a.id-b.id)
-    r[open].forEach(music => {
-      musicTable[music.id] = music;
-      const option = music_select.appendChild(document.createElement('option'))
-      option.value = music.id
-      diffi = [music.DifficultyNormalLv, music.DifficultyHardLv, music.DifficultyExtremeLv]
-      if (music.DifficultyInfernoLv != '0') diffi.push(music.DifficultyInfernoLv)
-      let title = cutText(music.title), artist = cutText(music.artist)
-      option.textContent = `${music.AssetDirectory} (${diffi.join('/')}) ${title} - ${artist}`
-    })
-  })
-  music_select.value = music_select.children[1].value
-}).catch(e => {
-  console.error('failed loading music table', e)
-})
 const seContext = new AudioContext
 
 let seBuffer = null
 let seRBuffer = null
+let seSwipeBuffer = null
+let seBonusBuffer = null
 let clkBuffer = null
 
-if (window.location.protocol !== "file:") {
-  fetch('note.wav').then(r => r.arrayBuffer()).then(r => {
+if (remoteRun) {
+  fetch('MusicData/charts.json').then(r=>r.json()).then(r => {
+    musicTable = {}
+    const keys = Object.keys(r)
+    keys.sort((a,b) => Number(a)>Number(b)?1:-1)
+    keys.forEach(open => {
+      let music = r[open]
+      musicTable[music.UniqueID] = music;
+      const option = music_select.appendChild(document.createElement('option'))
+      option.value = music.UniqueID
+
+      /* this sucks */
+
+      music.DifficultyNormalLv = (+music.DifficultyNormalLv).toFixed(1)
+      music.DifficultyHardLv = (+music.DifficultyHardLv).toFixed(1)
+      music.DifficultyExtremeLv = (+music.DifficultyExtremeLv).toFixed(1)
+      music.DifficultyInfernoLv = (+music.DifficultyInfernoLv).toFixed(1)
+
+      diffi = [music.DifficultyNormalLv, music.DifficultyHardLv, music.DifficultyExtremeLv]
+      if (music.DifficultyInfernoLv != 0) diffi.push(music.DifficultyInfernoLv)
+      let title = cutText(music.MusicMessage), artist = cutText(music.ArtistMessage)
+      option.textContent = `${music.AssetDirectory}: ${title} - ${artist}`
+    })
+    music_select.value = music_select.children[0].value
+    music_select.dispatchEvent(new Event('change'))
+  }).catch(e => {
+    console.error('failed loading music table', e)
+  })
+
+  fetch('sound/tap.wav').then(r => r.arrayBuffer()).then(r => {
     seContext.decodeAudioData(r, buf => {
       if (buf) {
         seBuffer = buf
@@ -168,7 +167,7 @@ if (window.location.protocol !== "file:") {
     }, e => console.error(e))
   })
 
-  fetch('rnote.wav').then(r => r.arrayBuffer()).then(r => {
+  fetch('sound/r_note.wav').then(r => r.arrayBuffer()).then(r => {
     seContext.decodeAudioData(r, buf => {
       if (buf) {
         seRBuffer = buf
@@ -178,7 +177,27 @@ if (window.location.protocol !== "file:") {
     }, e => console.error(e))
   })
 
-  fetch('52.hca.wav').then(r => r.arrayBuffer()).then(r => {
+  fetch('sound/swipe.wav').then(r => r.arrayBuffer()).then(r => {
+    seContext.decodeAudioData(r, buf => {
+      if (buf) {
+        seSwipeBuffer = buf
+      } else {
+        console.error('decode failed')
+      }
+    }, e => console.error(e))
+  })
+
+  fetch('sound/bonus.wav').then(r => r.arrayBuffer()).then(r => {
+    seContext.decodeAudioData(r, buf => {
+      if (buf) {
+        seBonusBuffer = buf
+      } else {
+        console.error('decode failed')
+      }
+    }, e => console.error(e))
+  })
+
+  fetch('sound/click.wav').then(r => r.arrayBuffer()).then(r => {
     seContext.decodeAudioData(r, buf => {
       if (buf) {
         clkBuffer = buf
@@ -222,16 +241,20 @@ document.addEventListener('drop', (e) => {
   }
 });
 
+function loadFiles() {
+  if (toggle_officials.checked) loadUsingSelect()
+  else loadUsingFile()
+}
+
 function loadUsingSelect() {
   const id = music_select.value | 0
   const diffi = diffi_select.value | 0
   if (!musicTable[id]) return alert('no such music id')
-  if (diffi < 0 || diffi > 3 || (diffi == 3 && musicTable[id].DifficultyInfernoLv == '0')) return alert('no such difficulty level')
+  if (diffi < 0 || diffi > 3 || (diffi == 3 && musicTable[id].DifficultyInfernoLv == 0)) return alert('no such difficulty level')
   stop()
   const strId = musicTable[id].AssetDirectory
   parseNotesFromFile(`MusicData/${strId}/${strId}_0${diffi}.mer`)
-  bgmFileName = 'MER_BGM_'+strId.replace('-', '_')
-  setBgm('Sound/Bgm/output/MER_BGM_'+strId.replace('-', '_')+'.m4a')
+  if (bgm_file.files.length) setBgm(URL.createObjectURL(bgm_file.files[0]))
 }
 function loadUsingFile() {
   if (music_file.files.length && bgm_file.files.length) {
@@ -246,11 +269,12 @@ function loadUsingFile() {
 }
 music_select.addEventListener('change', e => {
   if (!musicTable[music_select.value]) return
+  bgm_file.value = null
   const music = musicTable[music_select.value]
   diffi_select.children[0].textContent = `Normal (${music.DifficultyNormalLv}) - ${music.NotesDesignerNormal}`
   diffi_select.children[1].textContent = `Hard (${music.DifficultyHardLv}) - ${music.NotesDesignerHard}`
   diffi_select.children[2].textContent = `Expert (${music.DifficultyExtremeLv}) - ${music.NotesDesignerExpert}`
-  if (music.DifficultyInfernoLv == "0") {
+  if (music.DifficultyInfernoLv == 0) {
     diffi_select.children[3].setAttribute('disabled', '')
     diffi_select.children[3].textContent = 'Inferno'
     if (diffi_select.value === '3') diffi_select.value = '2'
@@ -299,6 +323,8 @@ function parseNotesFromText(text) {noteList = [];
   holdList = []
   seTrigger = []
   seRTrigger = []
+  seSwipeTrigger = []
+  seBonusTrigger = []
   seClockTrigger = []
   comboInfo = [0,0]
   const controlDupFix = {}
@@ -562,7 +588,9 @@ function parseNotesFromText(text) {noteList = [];
   })
 
   seRTrigger = Object.keys(noteListForPlayback.filter(i=>['20','21','22','23','24','25','26'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
-  seTrigger = Object.keys(noteListForPlayback.filter(i=>['10','12','13','14','sectionSep'].indexOf(i.noteType) === -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
+  seTrigger = Object.keys(noteListForPlayback.filter(i=>['1','2','9','16'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
+  seSwipeTrigger = Object.keys(noteListForPlayback.filter(i=>['3','4','5','6','7','8'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
+  seBonusTrigger = Object.keys(noteListForPlayback.filter(i=>['2','6','8'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
 
   comboInfo = [
     noteListForPlayback.filter(i=>['9','10','12','13','14','25','sectionSep'].indexOf(i.noteType) === -1).length,
@@ -593,6 +621,9 @@ toggle_ui.addEventListener('input', () => {
 })
 toggle_long_audio.addEventListener('input', () => {
   document.body.classList[toggle_long_audio.checked ? 'add' : 'remove']('long-audio')
+})
+toggle_officials.addEventListener('input', () => {
+  document.body.classList[toggle_officials.checked ? 'add' : 'remove']('officials')
 })
 setInterval(() => {
   if (stats.childNodes.length == 0) stats.appendChild(document.createTextNode(''))
@@ -912,7 +943,6 @@ function render(now) {
   const colorMap = [
     ['hold', 'rgb(88,75,47)'],
     ['touch', 'rgb(216,45,184)'],
-    //['chain', 'rgb(157,122,40)'],
     ['chain', 'rgb(234,234,170)'],
     ['flickL', 'rgb(246,159,55)'],
     ['flickR', 'rgb(98,251,43)'],
@@ -1083,7 +1113,7 @@ function render(now) {
     ctx.arc(
       centerX, centerY,
       r,
-      Math.PI * (-0.5 - chartRemaining * 2), -Math.PI * 0.5
+      -Math.PI * (0.5 - chartRemaining * 2), Math.PI * -0.5
     )
     ctx.stroke()
   }
@@ -1157,11 +1187,31 @@ function render(now) {
       if (!seRBuffer) break
       if (pendingSeRTrigger[0] - currentTs > -25) {
         let bufSrc = seContext.createBufferSource()
-        bufSrc.buffer = clkBuffer != null ? clkBuffer : seRBuffer
+        bufSrc.buffer = seRBuffer
         bufSrc.connect(gain)
         bufSrc.start(seContext.currentTime + Math.max(0, pendingSeRTrigger[0] - currentTs) / 1000)
       }
       pendingSeRTrigger.shift()
+    }
+    while (pendingSeSwipeTrigger.length && pendingSeSwipeTrigger[0] - currentTs < 100) {
+      if (!seSwipeBuffer) break
+      if (pendingSeSwipeTrigger[0] - currentTs > -25) {
+        let bufSrc = seContext.createBufferSource()
+        bufSrc.buffer = seSwipeBuffer
+        bufSrc.connect(gain)
+        bufSrc.start(seContext.currentTime + Math.max(0, pendingSeSwipeTrigger[0] - currentTs) / 1000)
+      }
+      pendingSeSwipeTrigger.shift()
+    }
+    while (pendingSeBonusTrigger.length && pendingSeBonusTrigger[0] - currentTs < 100) {
+      if (!seBonusBuffer) break
+      if (pendingSeBonusTrigger[0] - currentTs > -25) {
+        let bufSrc = seContext.createBufferSource()
+        bufSrc.buffer = seBonusBuffer
+        bufSrc.connect(gain)
+        bufSrc.start(seContext.currentTime + Math.max(0, pendingSeBonusTrigger[0] - currentTs) / 1000)
+      }
+      pendingSeBonusTrigger.shift()
     }
     while (pendingSeClockTrigger.length && pendingSeClockTrigger[0] - currentTs < 100) {
       if (!seBuffer && !clkBuffer) break
@@ -1201,9 +1251,11 @@ window.play = function () {
   playing = true
   pendingSeTrigger = seTrigger.filter(i => i > currentTs)
   pendingSeRTrigger = seRTrigger.filter(i => i > currentTs)
+  pendingSeSwipeTrigger = seSwipeTrigger.filter(i => i > currentTs)
+  pendingSeBonusTrigger = seBonusTrigger.filter(i => i > currentTs)
   pendingSeClockTrigger = seClockTrigger.filter(i => i > currentTs)
   seContext.resume()
-  gain.gain.value = se_volume.value / 100
+  gain.gain.value = (se_volume.value / 2) / 100
 }
 window.pause = function () {
   if (bgmBufSrc != null) {
@@ -1375,7 +1427,7 @@ for (let i=0; i<11; i++) {
 }
 se_volume.value = 100
 se_volume.addEventListener('change', () => {
-  gain.gain.value = se_volume.value / 100
+  gain.gain.value = (se_volume.value / 2)  / 100
 })
 
 function se_file_load() {
@@ -1384,7 +1436,7 @@ function se_file_load() {
   reader.onload = e => {
     seContext.decodeAudioData(reader.result, buf => {
       if (buf) {
-        seBuffer = buf
+        seBuffer = seRBuffer = seSwipeBuffer = seBonusBuffer = clkBuffer = buf
       } else {
         console.error('decode failed')
       }
@@ -1420,7 +1472,7 @@ class BgmController {
   constructor(e) {
     this._element = e
     // while (e.childNodes.length) e.childNodes[0].remove()
-    e.innerHTML = '<div class="btn"></div><div class="progress"><input type="range" step="any" min="0" max="1" value="0"/></div><div class="duration"><span class="played">0:00</span><span class="duration-grey"> / <span class="total">0:00</span></span></div><div class="volume"></div><div class="volume_slider"><input type="range" step="any" min="0" max="1" value="1"/></div>'
+    e.innerHTML = '<div class="btn no-hide"></div><div class="progress no-hide"><input type="range" step="any" min="0" max="1" value="0"/></div><div class="duration no-hide"><span class="played">0:00</span><span class="duration-grey"> / <span class="total">0:00</span></span></div><div class="volume no-hide"></div><div class="volume_slider no-hide"><input type="range" step="any" min="0" max="1" value="1"/></div>'
     this._playBtn = e.getElementsByClassName('btn')[0]
     this._progressInput = e.getElementsByClassName('progress')[0].children[0]
     this._playedText = e.getElementsByClassName('played')[0].childNodes[0]
@@ -1619,5 +1671,4 @@ bgmCtr.addEventListener('volumeChange', v => {
 })
 
 document.title += ` v${mpVersion}`
-
-//})
+document.body.classList[remoteRun ? 'add' : 'remove']('remote')
