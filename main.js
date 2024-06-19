@@ -68,6 +68,9 @@ const arrowCanvas = {
   in: document.createElement('canvas'),
   out: document.createElement('canvas'),
 }
+
+loadSettings()
+
 function pathToArcPoint(ctx, x, y, r, angle) {
   ctx.lineTo(
     x + Math.cos(angle) * r,
@@ -149,10 +152,36 @@ if (remoteRun) {
       diffi = [music.DifficultyNormalLv, music.DifficultyHardLv, music.DifficultyExtremeLv]
       if (music.DifficultyInfernoLv != 0) diffi.push(music.DifficultyInfernoLv)
       let title = cutText(music.MusicMessage), artist = cutText(music.ArtistMessage)
-      option.textContent = `${title} - ${artist} [${music.AssetDirectory}]`
+      option.textContent = `${title} - ${artist} [${music.UniqueID}]`
     })
     music_select.value = music_select.children[0].value
     music_select.dispatchEvent(new Event('change'))
+
+    window.pickOfficialFromHash = () => {
+      if (!remoteRun) return
+
+      // enable officials
+      toggle_officials.checked = true
+      toggle_officials.dispatchEvent(new Event('input'))
+
+      // check for difficulty
+      let sp = location.hash.slice(1).split('_')
+      if(sp.length > 1) diffi_select.value = Number(sp[1])
+      music_select.value = Number(sp[0])
+      music_select.dispatchEvent(new Event('change'))
+
+      loadUsingSelect()
+    }
+
+    window.addEventListener("hashchange", pickOfficialFromHash)
+
+    window.addEventListener("hashchange", () => {
+      console.log("hash changed to "+location.hash)
+    })
+
+    if (location.hash !== '') {
+      pickOfficialFromHash()
+    }
   }).catch(e => {
     console.error('failed loading music table', e)
     toggle_officials.parentNode.style.display = 'none'
@@ -255,6 +284,7 @@ function loadUsingSelect() {
   stop()
   const strId = musicTable[id].AssetDirectory
   parseNotesFromFile(`MusicData/${strId}/${strId}_0${diffi}.mer`)
+  history.replaceState(null, null, document.location.pathname + `#${id}_${diffi}`);
   if (bgm_file.files.length) setBgm(URL.createObjectURL(bgm_file.files[0]))
 }
 function loadUsingFile() {
@@ -1381,11 +1411,16 @@ function updateLaneOnState(fromTs, toTs) {
 }
 
 speed_input.addEventListener('input', e => {
-  const speed = speed_input.value / 10
+  const speed = speed_input.value / 10.0
   speed_val.textContent = speed
   RENDER_DISTANCE = 3000 / speed
   drawForNextFrame = true
+  window.settings.scrollSpeed = speed
+  saveSettings()
 })
+speed_input.value = window.settings.scrollSpeed * 10
+speed_input.dispatchEvent(new Event('input'))
+
 function resize() {
   const w = Math.round(window.innerWidth * devicePixelRatio), h = Math.round(window.innerHeight * devicePixelRatio)
   canvas.width = w
@@ -1426,10 +1461,14 @@ for (let i=0; i<11; i++) {
   option.textContent = i * 10
   se_volume.appendChild(option)
 }
-se_volume.value = 100
+
 se_volume.addEventListener('change', () => {
-  gain.gain.value = (se_volume.value / 2)  / 100
+  gain.gain.value = (se_volume.value / 2) / 100
+  window.settings.seVolume = se_volume.value
+  saveSettings()
 })
+se_volume.value = window.settings.seVolume
+se_volume.dispatchEvent(new Event('change'))
 
 function se_file_load() {
   const reader = new FileReader()
@@ -1667,9 +1706,30 @@ bgmCtr.addEventListener('seeked', function (e) {
 })
 bgmCtr.addEventListener('pause', pause)
 bgmCtr.addEventListener('play', play)
+bgmCtr.volume = window.settings.musicVolume
 bgmCtr.addEventListener('volumeChange', v => {
   bgmGain.gain.value = v
+  window.settings.musicVolume = v
+  saveSettings()
 })
 
 document.title += ` v${mpVersion}`
 document.body.classList[remoteRun ? 'add' : 'remove']('remote')
+
+function loadSettings() {
+  oldSettings = JSON.parse(localStorage.getItem('settings'));
+  if(oldSettings) window.settings = oldSettings
+  else {
+    window.settings = {
+      musicVolume: 1.0,
+      seVolume: 100,
+      scrollSpeed: 3.8
+    }
+
+    localStorage.setItem('settings', JSON.stringify(window.settings))
+  }
+}
+
+function saveSettings() {
+  localStorage.setItem('settings', JSON.stringify(window.settings))
+}
