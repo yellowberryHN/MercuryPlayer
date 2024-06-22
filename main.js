@@ -286,6 +286,7 @@ function loadUsingSelect() {
   parseNotesFromFile(`MusicData/${strId}/${strId}_0${diffi}.mer`)
   history.replaceState(null, null, document.location.pathname + `#${id}_${diffi}`);
   if (bgm_file.files.length) setBgm(URL.createObjectURL(bgm_file.files[0]))
+  else bgmCtr.duration = chartLength / 1000
 }
 function loadUsingFile() {
   if (music_file.files.length && bgm_file.files.length) {
@@ -1284,7 +1285,7 @@ window.play = function () {
   pendingSeRTrigger = seRTrigger.filter(i => i > currentTs)
   pendingSeSwipeTrigger = seSwipeTrigger.filter(i => i > currentTs)
   pendingSeBonusTrigger = seBonusTrigger.filter(i => i > currentTs)
-  pendingSeClockTrigger = seClockTrigger.filter(i => i > currentTs)
+  pendingSeClockTrigger = seClockTrigger.filter(i => i > currentTs - 1) // - 1 required to allow a click on ts 0
   seContext.resume()
   gain.gain.value = (se_volume.value / 2) / 100
 }
