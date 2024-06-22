@@ -286,10 +286,10 @@ function loadUsingSelect() {
   parseNotesFromFile(`MusicData/${strId}/${strId}_0${diffi}.mer`)
   history.replaceState(null, null, document.location.pathname + `#${id}_${diffi}`);
   if (bgm_file.files.length) setBgm(URL.createObjectURL(bgm_file.files[0]))
-  else bgmCtr.duration = chartLength / 1000
 }
 function loadUsingFile() {
   if (music_file.files.length && bgm_file.files.length) {
+    stop()
     const reader = new FileReader()
     reader.readAsText(music_file.files[0], 'UTF-8')
     reader.onload = e => parseNotesFromText(reader.result)
@@ -641,6 +641,8 @@ function parseNotesFromText(text) {noteList = [];
 
   if (bgmFileName !== 'file' && chartHeader.MUSIC_FILE_PATH && chartHeader.MUSIC_FILE_PATH !== bgmFileName) {
     setBgm('Sound/Bgm/output/'+chartHeader.MUSIC_FILE_PATH+'.m4a')
+  } else if (bgmFileName === 'file') {
+    bgmCtr.duration = chartLength / 1000
   }
 }
 
@@ -1707,12 +1709,13 @@ bgmCtr.addEventListener('seeked', function (e) {
 })
 bgmCtr.addEventListener('pause', pause)
 bgmCtr.addEventListener('play', play)
-bgmCtr.volume = window.settings.musicVolume
 bgmCtr.addEventListener('volumeChange', v => {
   bgmGain.gain.value = v
   window.settings.musicVolume = v
   saveSettings()
 })
+
+bgmCtr.volume = window.settings.musicVolume
 
 document.title += ` v${mpVersion}`
 document.body.classList[remoteRun ? 'add' : 'remove']('remote')
