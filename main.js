@@ -1,4 +1,4 @@
-const mpVersion = '1.3.0';
+const mpVersion = '1.4.0';
 
 let remoteRun = window.location.protocol !== "file:"
 
@@ -34,18 +34,18 @@ let noteList = [];
 /**
  * 2: bpm
  * 3: met
- * 5: sfl
+ * 5: hi-speed
  * 6: reverse start
  * 7: reverse point
  * 8: reverse end
- * 9: sfl 0
- * 10: sfl 1
+ * 9: stop start
+ * 10: stop end
  */
 let controlList = [];
 let noteListForPlayback = []
 let bpmList = []
 let metList = []
-let sflTsList = []
+let hiSpeedTsList = []
 let laneToggleList = []
 let idOffsetMap = []
 let prevIdMap = {}
@@ -251,10 +251,12 @@ document.addEventListener('drop', (e) => {
     dT.items.add(e.dataTransfer.files[i]);
 
     switch (ext) {
+		/*
       case 'wav':
         document.getElementById('se_file').files = dT.files;
         se_file_load(); // immediately load
         break;
+		*/
       case 'mer':
         document.getElementById('music_file').files = dT.files;
         break;
@@ -286,17 +288,19 @@ function loadUsingSelect() {
   parseNotesFromFile(`MusicData/${strId}/${strId}_0${diffi}.mer`)
   history.replaceState(null, null, document.location.pathname + `#${id}_${diffi}`);
   if (bgm_file.files.length) setBgm(URL.createObjectURL(bgm_file.files[0]))
+  else setBgm(null)
 }
 function loadUsingFile() {
-  if (music_file.files.length && bgm_file.files.length) {
+  if (music_file.files.length) {
     stop()
     const reader = new FileReader()
     reader.readAsText(music_file.files[0], 'UTF-8')
     reader.onload = e => parseNotesFromText(reader.result)
     bgmFileName = 'file'
-    setBgm(URL.createObjectURL(bgm_file.files[0]))
+    if (bgm_file.files.length) setBgm(URL.createObjectURL(bgm_file.files[0]))
+	else setBgm(null)
   } else {
-    alert('Please choose remaining files.')
+    alert('Please select a chart file.')
   }
 }
 music_select.addEventListener('change', e => {
@@ -321,9 +325,12 @@ let bgmFileName = 'file'
 function setBgm(path) {
   bgmCtr.duration = 0
   bgmBuffer = null
-  fetch(path).then(r => r.arrayBuffer()).then(b => {
-    setBgmFromBuffer(b)
-  }).catch(e => console.error(path, e))
+  if(path != null) {
+	  fetch(path).then(r => r.arrayBuffer()).then(b => {
+		setBgmFromBuffer(b)
+	  }).catch(e => console.error(path, e))
+  }
+  stop()
 }
 function setBgmFromBuffer(r) {
   seContext.decodeAudioData(r, buf => {
@@ -341,13 +348,27 @@ function parseNotesFromFile(file) {
 function tickFromSectionAndTick(section, tick) {
   return section * 1920 + tick;
 }
-function parseNotesFromText(text) {noteList = [];
+function parseNotesFromText(text) {
+  const lines = text.trim().replace(/ +/g, '\t').split('\n');
+  
+  let validChart = false
+  lines.forEach(line => {
+	if(line.startsWith('#BODY')) {
+		validChart = true;
+	}
+  })
+  
+  if(!validChart) {
+	alert("This is not a valid chart file!")
+	return
+  }
+  
   noteList = []
   controlList = []
   noteListForPlayback = []
   bpmList = []
   metList = []
-  sflTsList = []
+  hiSpeedTsList = []
   idOffsetMap = []
   prevIdMap = {}
   chartHeader = {}
@@ -360,8 +381,7 @@ function parseNotesFromText(text) {noteList = [];
   seClockTrigger = []
   comboInfo = [0,0]
   const controlDupFix = {}
-
-  const lines = text.trim().replace(/ +/g, '\t').split('\n');
+  
   let lastEventTick = 0;
   let nextHoldMap = {}
   const holdFillTickGap = 3
@@ -429,7 +449,7 @@ function parseNotesFromText(text) {noteList = [];
     }
   })
   lastEventTick++;
-
+  
   // add section seperator
   for (let i=0; i <= lastEventTick; i+= 1920) {
     noteList.push({
@@ -479,27 +499,27 @@ function parseNotesFromText(text) {noteList = [];
     timeStampOffset += Math.round((toTick - fromTick) / TICK_PER_BEAT * 60000 / bpm);
   }
   
-  const sflList = controlList.filter(i => i.cmdType === '5')
+  const hiSpeedList = controlList.filter(i => i.cmdType === '5')
   noteNo = 0;
   let distanceOffset = 0;
-  sflList.unshift({tickTotal:-999999, value1:1, timestamp:-999999})
+  hiSpeedList.unshift({tickTotal:-999999, value1:1, timestamp:-999999})
   // convert milli second to distance(?) for chart speed control
-  for (let i = 0; i < sflList.length; i++) {
-    const currentSfl = sflList[i]
-    const fromTs = currentSfl.timestamp
-    const toTs = i == sflList.length - 1 ? Infinity : sflList[i + 1].timestamp
-    const sfl = currentSfl.value1
+  for (let i = 0; i < hiSpeedList.length; i++) {
+    const currentHiSpeed = hiSpeedList[i]
+    const fromTs = currentHiSpeed.timestamp
+    const toTs = i == hiSpeedList.length - 1 ? Infinity : hiSpeedList[i + 1].timestamp
+    const hiSpeed = currentHiSpeed.value1
     for (; noteNo < noteListForPlayback.length; noteNo++) {
       const currentNote = noteListForPlayback[noteNo]
       if (currentNote.timestamp > toTs) break;
-      currentNote.distance = distanceOffset + Math.round((currentNote.timestamp - fromTs) * sfl);
+      currentNote.distance = distanceOffset + Math.round((currentNote.timestamp - fromTs) * hiSpeed);
     }
-    sflTsList.push({
+    hiSpeedTsList.push({
       timestamp: fromTs,
       distance: distanceOffset,
-      sfl
+      hiSpeed
     })
-    distanceOffset += Math.round((toTs - fromTs) * sfl);
+    distanceOffset += Math.round((toTs - fromTs) * hiSpeed);
   }
 
   // sort by distance
@@ -507,7 +527,7 @@ function parseNotesFromText(text) {noteList = [];
   for (let i=0; i<noteListForPlayback.length; i++) {
     idOffsetMap[noteListForPlayback[i].id] = i
   }
-
+  
   // fix hold chain
   noteListForPlayback.forEach(i => {
     if (i.noteType === '9' || i.noteType === '25') {
@@ -515,10 +535,10 @@ function parseNotesFromText(text) {noteList = [];
       const changePoint = [0]
       let prevOffset = i.laneOffset
       let laneOffsetAdjust = 0
-      let acrossMinusSfl = false
+      let acrossMinusHiSpeed = false
       while (i.noteType !== '11') {
         i = noteListForPlayback[idOffsetMap[i.extParam2]]
-        if (i.extParam1 === 1) changePoint.push(holdChain.length)
+        /*if (i.extParam1 === 1)*/ changePoint.push(holdChain.length)
         holdChain.push(i)
         if (prevOffset == 59 && i.laneOffset == 0) laneOffsetAdjust += 60
         else if (prevOffset == 0 && i.laneOffset == 59) laneOffsetAdjust -= 60
@@ -527,7 +547,7 @@ function parseNotesFromText(text) {noteList = [];
       }
       for (let j = 1; j < holdChain.length - 1; j++) {
         if (holdChain[j].distance > holdChain[j-1].distance && holdChain[j].distance > holdChain[j+1].distance) {
-          acrossMinusSfl = true
+          acrossMinusHiSpeed = true
           break
         }
       }
@@ -538,7 +558,7 @@ function parseNotesFromText(text) {noteList = [];
         for (let k = startIndex + 1; k < endIndex; k++) {
           holdChain[k].laneOffset = (endOffset - startOffset) * (k - startIndex) / segments + startOffset
           holdChain[k].noteWidth = (endWidth - startWidth) * (k - startIndex) / segments + startWidth
-          if (acrossMinusSfl) holdChain[k].distance = (endDistance - startDistance) * (k - startIndex) / segments + startDistance
+          if (acrossMinusHiSpeed) holdChain[k].distance = (endDistance - startDistance) * (k - startIndex) / segments + startDistance
         }
       }
 
@@ -611,8 +631,6 @@ function parseNotesFromText(text) {noteList = [];
   })
   laneToggleList.sort((a,b) => a.timestamp-b.timestamp)
 
-  console.log('parsed notes')
-
   window.noteTypes = {}
   noteListForPlayback.forEach(i => {
     if (!window.noteTypes[i.noteType]) window.noteTypes[i.noteType] = []
@@ -620,7 +638,7 @@ function parseNotesFromText(text) {noteList = [];
   })
 
   seRTrigger = Object.keys(noteListForPlayback.filter(i=>['20','21','22','23','24','25','26'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
-  seTrigger = Object.keys(noteListForPlayback.filter(i=>['1','2','9','16'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
+  seTrigger = Object.keys(noteListForPlayback.filter(i=>['1','2','9','11','16'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
   seSwipeTrigger = Object.keys(noteListForPlayback.filter(i=>['3','4','5','6','7','8'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
   seBonusTrigger = Object.keys(noteListForPlayback.filter(i=>['2','6','8'].indexOf(i.noteType) !== -1).map(i => i.timestamp).reduce((v,i) => (v[Math.round(i)]=1,v), {})).map(i => parseInt(i)).sort((a,b)=>(a-b))
 
@@ -650,8 +668,8 @@ const drawCount = {
   frame: 0,
   actualFrame: 0,
 }
-toggle_ui.addEventListener('input', () => {
-  document.body.classList[toggle_ui.checked ? 'add' : 'remove']('hide-control')
+show_ui.addEventListener('input', () => {
+  document.body.classList[show_ui.checked ? 'remove' : 'add']('hide-control')
 })
 toggle_long_audio.addEventListener('input', () => {
   document.body.classList[toggle_long_audio.checked ? 'add' : 'remove']('long-audio')
@@ -674,8 +692,8 @@ let startNextFrame = false
 let currentTs = 0
 let currentDistance = 0;
 let playing = false;
-let sfl = 1
-let sflOffset = 0
+let hiSpeed = 1
+let hiSpeedOffset = 0
 let drawForNextFrame = false
 let NOTE_APPEAR_DISTANCE = 1
 let NOTE_SPEED_POWER = 1.95
@@ -694,7 +712,7 @@ requestAnimationFrame(mainClock)
 function render(now) {
   drawCount.frame++
 
-  if (!sflTsList.length) return
+  if (!hiSpeedTsList.length) return
 
   if (!playing) {
     if (!drawForNextFrame) {
@@ -705,8 +723,7 @@ function render(now) {
 
   drawCount.actualFrame++
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  const cabView = (canvas.width == 1080 && canvas.height == 1920)
-  const centerX = canvas.width / 2, centerY = cabView ? (canvas.height / 2) - 58 : canvas.height / 2
+  const centerX = canvas.width / 2, centerY = canvas.height / 2
 
   // outer ring
   ctx.lineWidth = 3
@@ -755,13 +772,13 @@ function render(now) {
       }
       updateLaneOnState(-1, currentTs)
     }
-    if (!(currentTs >= sflTsList[sflOffset].timestamp && (sflOffset === sflTsList.length - 1 || currentTs <= sflTsList[sflOffset + 1].timestamp))) {
-      for (sflOffset = 0; sflOffset < sflTsList.length - 1; sflOffset++) {
-        if (currentTs >= sflTsList[sflOffset].timestamp && currentTs <= sflTsList[sflOffset + 1].timestamp) {
+    if (!(currentTs >= hiSpeedTsList[hiSpeedOffset].timestamp && (hiSpeedOffset === hiSpeedTsList.length - 1 || currentTs <= hiSpeedTsList[hiSpeedOffset + 1].timestamp))) {
+      for (hiSpeedOffset = 0; hiSpeedOffset < hiSpeedTsList.length - 1; hiSpeedOffset++) {
+        if (currentTs >= hiSpeedTsList[hiSpeedOffset].timestamp && currentTs <= hiSpeedTsList[hiSpeedOffset + 1].timestamp) {
           break;
         }
       }
-      sfl = sflTsList[sflOffset].sfl
+      hiSpeed = hiSpeedTsList[hiSpeedOffset].hiSpeed
     }
     currentTs = now - startTs
     let calcBaseTs = Math.max(currentTs, 0)
@@ -773,7 +790,7 @@ function render(now) {
         break
       }
     }
-    currentDistance = (calcBaseTs - sflTsList[sflOffset].timestamp) * sfl + sflTsList[sflOffset].distance
+    currentDistance = (calcBaseTs - hiSpeedTsList[hiSpeedOffset].timestamp) * hiSpeed + hiSpeedTsList[hiSpeedOffset].distance
   }
 
   updateLaneOnState(previousTs, currentTs)
@@ -801,6 +818,7 @@ function render(now) {
     sectionSep: [],
     touch: [],
     hold: [],
+	holdEnd: [],
     holdBody: [],
     chain: [],
     flickL: [],
@@ -827,9 +845,8 @@ function render(now) {
       case '7': // flick R
       case '8': // flick R with effect
       case '24': {notesToRender.arrow.push(i); notesToRender.flickR.push(i); break;} // flick Right R
-      case '9': // hold start
-      case '25': // hold start R
-      case '11-': {notesToRender.hold.push(i);} // hold end
+      case '9': case '25': {notesToRender.hold.push(i); break;} // hold start, hold start R
+      case '11': {notesToRender.holdEnd.push(i); break;} // hold end
       case '10': {notesToRender.holdBody.push(i); break;} // hold body
       case '12':
       case '13': {notesToRender.laneEffect.push(i); break;}
@@ -865,7 +882,7 @@ function render(now) {
   {
     const drawHoldList = getHoldsForDraw(currentDistance, currentTs, drawDistance);
     //ctx.fillStyle = 'rgba(207,162,93, 0.7)'
-    ctx.fillStyle = 'rgba(220,200,90, 0.7)'
+    ctx.fillStyle = 'rgba(255,198,73, 0.6)'
     drawHoldList.forEach(nodes => {
       ctx.beginPath()
       const nodeCount = nodes.length
@@ -891,31 +908,33 @@ function render(now) {
       }
       for (let i=0; i<nodeCount-1; i++) {
         const r = distanceToRenderRadius(maxR, Math.max(nodes[i].distance - currentDistance, 0) / RENDER_DISTANCE)
-        const start = 60 - nodes[i].laneOffset - nodes[i].noteWidth, end = 60 - nodes[i].laneOffset
-        const gapWidth = nodes[i].noteWidth == 60 ? 0 : 0.01
+        const shrinkSize = nodes[i].noteWidth < 60 ? 1 : 0
+        const start = 60 - nodes[i].laneOffset - nodes[i].noteWidth + shrinkSize, end = 60 - nodes[i].laneOffset - shrinkSize
+        const growSize = (1 - shrinkSize) * 0.25
         if (i === 0) {
           ctx.arc(
             centerX, centerY,
             r,
-            Math.PI * (start / 30) + gapWidth, Math.PI * (end / 30) - gapWidth
+            Math.PI * ((start - growSize) / 30), Math.PI * ((end + growSize) / 30)
           )
         } else {
-          pathToArcPoint(ctx, centerX, centerY, r, Math.PI * (end / 30) - gapWidth)
+          pathToArcPoint(ctx, centerX, centerY, r, Math.PI * ((end + growSize) / 30))
         }
       }
       for (let i=nodeCount-1; i>=0; i--) {
         const r = distanceToRenderRadius(maxR, Math.min(nodes[i].distance - currentDistance, RENDER_DISTANCE) / RENDER_DISTANCE)
-        const start = 60 - nodes[i].laneOffset - nodes[i].noteWidth, end = 60 - nodes[i].laneOffset
-        const gapWidth = nodes[i].noteWidth == 60 ? 0 : 0.01
+		const shrinkSize = nodes[i].noteWidth < 60 ? 1 : 0
+        const start = 60 - nodes[i].laneOffset - nodes[i].noteWidth + shrinkSize, end = 60 - nodes[i].laneOffset - shrinkSize
+        const growSize = (1 - shrinkSize) * 0.25
         if (i === nodeCount-1) {
           ctx.arc(
             centerX, centerY,
             r,
-            Math.PI * (end / 30) - gapWidth, Math.PI * (start / 30) + gapWidth,
+            Math.PI * ((end + growSize) / 30), Math.PI * ((start - growSize) / 30),
             true
           )
         } else {
-          pathToArcPoint(ctx, centerX, centerY, r, Math.PI * (start / 30) - gapWidth)
+          pathToArcPoint(ctx, centerX, centerY, r, Math.PI * ((start - growSize) / 30))
         }
       }
       ctx.closePath()
@@ -925,14 +944,14 @@ function render(now) {
 
   // blue extend for same time notes
   {
-    const key = 'sameTime', color = 'rgb(80,255,250)'
+    const key = 'sameTime', color = 'rgb(0,255,255)'
     const thicc = 4 * displayRatio
     if (notesToRender[key].length) {
       ctx.strokeStyle = color
       notesToRender[key].forEach(i => {
         const r = distanceToRenderRadius(maxR, (i.distance - currentDistance) / RENDER_DISTANCE)
         ctx.lineWidth = 10 * thicc
-        const start = 60 - i.laneOffset - i.noteWidth, end = 60 - i.laneOffset
+        const start = 60 - i.laneOffset - i.noteWidth + 0.5, end = 60 - i.laneOffset - 0.5
         const scale = r / maxR
         ctx.translate(centerX, centerY)
         ctx.scale(scale, scale)
@@ -957,8 +976,8 @@ function render(now) {
       notesToRender[key].forEach(i => {
         const r = distanceToRenderRadius(maxR, (i.distance - currentDistance) / RENDER_DISTANCE)
         ctx.lineWidth = 10 * thicc
-        const start = 60 - i.laneOffset - i.noteWidth, end = 60 - i.laneOffset
-        const cutOut = i.noteWidth < 60 ? 0.01 : 0
+		const cutOut = i.noteWidth < 60 ? 0.5 : 0
+        const start = 60 - i.laneOffset - i.noteWidth + cutOut, end = 60 - i.laneOffset - cutOut
         const scale = r / maxR
         ctx.translate(centerX, centerY)
         ctx.scale(scale, scale)
@@ -966,7 +985,7 @@ function render(now) {
         ctx.arc(
           0, 0,
           maxR,
-          Math.PI * (start / 30) + cutOut, Math.PI * (end / 30) - cutOut
+          Math.PI * (start / 30), Math.PI * (end / 30)
         )
         ctx.stroke()
         ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -975,35 +994,68 @@ function render(now) {
   }
 
   const colorMap = [
-    ['hold', 'rgb(88,75,47)'],
-    ['touch', 'rgb(216,45,184)'],
-    ['chain', 'rgb(234,234,170)'],
-    ['flickL', 'rgb(246,159,55)'],
-    ['flickR', 'rgb(98,251,43)'],
-    ['snapIn', 'rgb(203,29,25)'],
-    ['snapOut', 'rgb(33,180,251)'],
+    ['hold', 'rgb(100,66,0)'],
+	['holdEnd', 'rgba(255,198,73, 0.7)'],
+    ['touch', 'rgb(255,9,220)'],
+    ['chain', 'rgb(255,225,30)'],
+    ['flickL', 'rgb(255,154,0)'],
+    ['flickR', 'rgb(57,210,52)'],
+    ['snapIn', 'rgb(221,44,44)'],
+    ['snapOut', 'rgb(2,107,255)'],
   ]
   colorMap.forEach(noteType => {
     const key = noteType[0], color = noteType[1]
     const thicc = (['flickL','flickR','snapIn','snapOut'].indexOf(key) === -1 ? 2.25 : 2.5) * displayRatio
     if (notesToRender[key].length) {
-      ctx.strokeStyle = color
       notesToRender[key].forEach(i => {
-        const r = distanceToRenderRadius(maxR, (i.distance - currentDistance) / RENDER_DISTANCE)
+		const r = distanceToRenderRadius(maxR, (i.distance - currentDistance) / RENDER_DISTANCE)
         ctx.lineWidth = 10 * thicc
-        const start = 60 - i.laneOffset - i.noteWidth, end = 60 - i.laneOffset
-        const cutOut = i.noteWidth < 60 ? 0.03 : 0
+		const cutOut = (i.noteWidth < 60) ? (key == 'holdEnd' ? 0.5 : 1) : 0
+        const start = 60 - i.laneOffset - i.noteWidth + cutOut, end = 60 - i.laneOffset - cutOut
         const scale = r / maxR
+		
+		// set note color
+		ctx.strokeStyle = color
+
         ctx.translate(centerX, centerY)
         ctx.scale(scale, scale)
         ctx.beginPath()
         ctx.arc(
           0, 0,
           maxR,
-          Math.PI * (start / 30) + cutOut, Math.PI * (end / 30) - cutOut
+          Math.PI * (start / 30), Math.PI * (end / 30)
         )
         ctx.stroke()
         ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+		if(key != 'holdEnd' && i.noteWidth != 60) {
+			// set endcap color
+			ctx.strokeStyle = 'rgb(78,172,247)'
+
+			// left endcap
+			ctx.translate(centerX, centerY)
+			ctx.scale(scale, scale)
+			ctx.beginPath()
+			ctx.arc(
+			  0, 0,
+			  maxR,
+			  Math.PI * (end / 30), Math.PI * ((end + 0.25) / 30)
+			)
+			ctx.stroke()
+			ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+			// right endcap
+			ctx.translate(centerX, centerY)
+			ctx.scale(scale, scale)
+			ctx.beginPath()
+			ctx.arc(
+			  0, 0,
+			  maxR,
+			  Math.PI * ((start - 0.25) / 30), Math.PI * (start / 30)
+			)
+			ctx.stroke()
+			ctx.setTransform(1, 0, 0, 1, 0, 0)
+		}
       })
     }
   })
@@ -1023,7 +1075,7 @@ function render(now) {
         continue
       }
       const r = distanceToRenderRadius(maxR, (a.distance - currentDistance) / RENDER_DISTANCE)
-      const start = 60 - a.laneOffset - a.noteWidth, end = 60 - a.laneOffset
+      const start = 60 - a.laneOffset - a.noteWidth + 1, end = 60 - a.laneOffset - 1
       ctx.save()
       ctx.beginPath()
       ctx.moveTo(centerX, centerY)
@@ -1068,10 +1120,10 @@ function render(now) {
     const nodes = []
     for (let i=0; i<2; i++) {
       const arrowAngleDirection = [-0.4, 0.4][i]
-      const color = ['rgb(246,159,55)', 'rgb(98,251,43)'][i]
+      const color = ['rgb(255,154,0)', 'rgb(57,210,52)'][i]
       flicks[i].forEach(a => {
         const r = distanceToRenderRadius(maxR*0.95, (a.distance - currentDistance) / RENDER_DISTANCE)
-        const start = 60 - a.laneOffset - a.noteWidth, end = 60 - a.laneOffset
+        const start = 60 - a.laneOffset - a.noteWidth + 1, end = 60 - a.laneOffset - 1
         const rPos = 1 - (a.distance - currentDistance) / RENDER_DISTANCE
         const rotateOffset = ((rPos * rotateSpeed) * [1, -1][i] + 2) % 2
         const flickNodes = {n:[], r:r, c: color}
@@ -1136,9 +1188,9 @@ function render(now) {
   }
 
   {
-    let chartRemaining = 1
+    let chartProgress = 0
     if (chartLength) {
-      chartRemaining = Math.max(0, 1 - currentTs / chartLength)
+      chartProgress = Math.max(0, currentTs / chartLength)
     }
     ctx.strokeStyle = 'rgba(0,0,0,0.3)'
     const r = maxR * 0.98
@@ -1147,7 +1199,7 @@ function render(now) {
     ctx.arc(
       centerX, centerY,
       r,
-      -Math.PI * (0.5 - chartRemaining * 2), Math.PI * -0.5
+      -Math.PI * (0.5 + chartProgress * 2), Math.PI * -0.5
     )
     ctx.stroke()
   }
@@ -1185,19 +1237,16 @@ function render(now) {
       section: ('000'+Math.floor((chkTs - refBase.timestamp) / beatDuration / met.value1 + refBase.section)).slice(-3),
       beat: Math.floor((chkTs - refBase.timestamp) / beatDuration + refBase.tick / (TICK_PER_GAME_SECTION / met.value1)) % met.value1,
       bpm,
-      sfl
+      hiSpeed
     }
     const playInfoText = [
       `${playedNotesCount[0]} (${playedNotesCount[1]}) / ${comboInfo[0]} (${comboInfo[1]})`,
       `${playInfoStat.min}:${playInfoStat.sec}.${playInfoStat.milisec} (${playInfoStat.section}/${playInfoStat.beat})`,
-      `BPM: ${playInfoStat.bpm}`,
-      `SFL: ${playInfoStat.sfl}`,
+      `BPM: ${playInfoStat.bpm.toFixed(1)}`,
+      `HS: ${playInfoStat.hiSpeed}` + (reversing ? ' (Reversing)' : ''),
       ``,
       `v${mpVersion}`
     ]
-    if (reversing) {
-      playInfoText.push('Reversing')
-    }
     const fontSize = 16 * devicePixelRatio
     ctx.font = `${fontSize}px Arial`
     ctx.fillStyle = 'white'
@@ -1277,8 +1326,8 @@ window.play = function () {
     bgmBufSrc.buffer = bgmBuffer
     bgmBufSrc.connect(bgmGain)
     bgmBufSrc.start(0, bgmCtr.currentTime)
-    currentTs = Math.round(bgmCtr.currentTime * 1000) + globalPlaybackOffset
   }
+  currentTs = Math.round(bgmCtr.currentTime * 1000) + globalPlaybackOffset
   bgmCtr.play()
   if (enableBga) bga.play()
   bga.muted = true
@@ -1308,8 +1357,8 @@ window.stop = function () {
   bgmCtr.currentTime = 0
   if (enableBga) bga.currentTime = 0
   drawForNextFrame = true
-  sflOffset = 0
-  sfl = 1
+  hiSpeedOffset = 0
+  hiSpeed = 1
 }
 window.setPlaybackTime = function (time = 0) {
   currentTs = Math.round(time * 1000)
@@ -1374,7 +1423,7 @@ function getHoldsForDraw(currentDistance, currentTs, renderDistance = RENDER_DIS
       } else if (offset === nodeCount - 1) { // last one in chain
         tail = offset
         if (tail-head > 0) drawHoldList.push(hold.nodes.slice(head, tail + 1))
-      } else if (offset > 0 && offset < nodeCount - 1) { // not first or last one in chain, if change render direction (due to sfl), break render chain
+      } else if (offset > 0 && offset < nodeCount - 1) { // not first or last one in chain, if change render direction (due to note speed chages), break render chain
         if (hold.nodes[offset].distance > hold.nodes[offset - 1].distance && hold.nodes[offset].distance > hold.nodes[offset + 1].distance) {
           tail = offset
           if (tail-head > 0) drawHoldList.push(hold.nodes.slice(head, tail + 1))
@@ -1425,16 +1474,15 @@ speed_input.value = window.settings.scrollSpeed * 10
 speed_input.dispatchEvent(new Event('input'))
 
 function resize() {
-  const w = Math.round(window.innerWidth * devicePixelRatio), h = Math.round(window.innerHeight * devicePixelRatio)
-  canvas.width = w
-  canvas.height = h
-  const cabView = (canvas.width == 1080 && canvas.height == 1920)
-  maxR = cabView ? 530 : Math.round(Math.min(w, h) * 0.45)
+  const size = Math.min(window.innerWidth, window.innerHeight)
+  canvas.width = canvas.height = size * devicePixelRatio
+  //const cabView = (canvas.width == 1080 && canvas.height == 1920)
+  //maxR = cabView ? 530 : Math.round(Math.min(w, h) * 0.45)
+  maxR = Math.round(size * devicePixelRatio * 0.45)
   drawForNextFrame = true
-  displayRatio = Math.max(w, h) / 1920
-  const wView = window.innerWidth, hView = window.innerHeight
-  const centerX = wView / 2, centerY = cabView ? (hView / 2) - 58 : hView / 2
-  const rView = Math.round(Math.min(wView, hView) * 0.45)
+  displayRatio = 1
+  const centerX = size / 2, centerY = size / 2
+  const rView = Math.round(size * 0.45)
 
   if (enableBga) {
     bga.style.left = (centerX - rView) + 'px'

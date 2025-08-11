@@ -1,28 +1,42 @@
 html {
     background: black;
+	color: white;
     font-family: Meiryo, Helvetica, Arial, sans-serif;
+	user-select: none;
 }
 select, option {
     -moz-font: -moz-pull-down-menu;
     font-family: Meiryo, Helvetica, Arial, sans-serif;
 }
+
+.responsive-square {
+	width: 100vmin;
+	height: 100vmin;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
 canvas {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
 }
 video {
     position: fixed;
     mask-size: 100%;
     mask-image: url('data:image/svg+xml,%3Csvg height%3D"2" width%3D"2" version%3D"1.1" xmlns%3D"http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg"%3E%3Cellipse style%3D"fill%3A%23000" cx%3D"1" cy%3D"1" rx%3D"1" ry%3D"1"%2F%3E%3C%2Fsvg%3E');
 }
+
+#ui {
+	position: fixed;
+	left: 5px;
+	bottom: 5px;
+}
 input {
     padding-top: 0.5px;
     padding-bottom: 0.5px;
 }
-.hide-control div:not(.no-hide) {
+.hide-control #ui div:not(.no-hide) {
     display: none !important; /* lol */
 }
 .long-audio audio {
@@ -62,6 +76,7 @@ input {
     line-height: 40px;
     background: rgba(30, 30, 30, 0.7);
     width: 500px;
+	max-width: calc(100vw - 10px);
     text-align: center;
 }
 .bgm svg {
@@ -113,7 +128,6 @@ input {
 }
 .long-audio .bgm {
     width: 1000px;
-    max-width: calc(100vw - 16px);
 }
 
 .github-corner:hover .octo-arm {
@@ -144,4 +158,21 @@ input {
     border: 0;
     right: 0;
     z-index: 10;
+}
+
+#stats {
+	position: fixed;
+	top: 5px;
+	left: 5px;
+	color: #444;
+}
+
+@media screen and (max-width: 500px) {
+	.no-mobile {
+		display: none;
+	}
+
+	.bgm {
+		width: 100vw;
+	}
 }
