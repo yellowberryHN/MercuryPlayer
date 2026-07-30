@@ -285,10 +285,14 @@ function loadUsingSelect() {
   if (diffi < 0 || diffi > 3 || (diffi == 3 && musicTable[id].DifficultyInfernoLv == 0)) return alert('no such difficulty level')
   stop()
   const strId = musicTable[id].AssetDirectory
-  parseNotesFromFile(`MusicData/${strId}/${strId}_0${diffi}.mer`)
+  let chartPath = `MusicData/${strId}/${strId}_0${diffi}.mer`
+  parseNotesFromFile(chartPath);
   history.replaceState(null, null, document.location.pathname + `#${id}_${diffi}`);
   if (bgm_file.files.length) setBgm(URL.createObjectURL(bgm_file.files[0]))
   else setBgm(null)
+  download_link.hidden = false
+  download_link.href = `/${chartPath}`
+  download_link.innerText = `Download (${strId}_0${diffi}.mer)`
 }
 function loadUsingFile() {
   if (music_file.files.length) {
