@@ -24201,9 +24201,9 @@
 		"DifficultyHardLv": 10,
 		"NotesDesignerHard": "Snowball",
 		"DifficultyExtremeLv": 13.8,
-		"NotesDesignerExpert": "Snowball",
+		"NotesDesignerExpert": "キラキラ猫！/vs/ ~レイ~ /vs/ ヤクサンス",
 		"DifficultyInfernoLv": 14.2,
-		"NotesDesignerInferno": "キラキラ猫！/vs/ ~レイ~ /vs/ ヤクサンス",
+		"NotesDesignerInferno": "Snowball",
 		"AssetDirectory": "S04-100"
 	},
 	"4101": {
@@ -24275,7 +24275,7 @@
 		"DifficultyNormalLv": 4,
 		"NotesDesignerNormal": "Tiiger",
 		"DifficultyHardLv": 10.4,
-		"NotesDesignerHard": "Snowball",
+		"NotesDesignerHard": "Tiiger",
 		"DifficultyExtremeLv": 13.3,
 		"NotesDesignerExpert": "Snowball",
 		"AssetDirectory": "S04-106"
@@ -24381,7 +24381,7 @@
 	"4116": {
 		"UniqueID": 4116,
 		"MusicMessage": "Burned Out",
-		"ArtistMessage": "Reku Mochizuki",
+		"ArtistMessage": "Getty feat. DJ Noriken",
 		"DifficultyNormalLv": 4,
 		"NotesDesignerNormal": "Tiiger",
 		"DifficultyHardLv": 9.8,
@@ -24421,9 +24421,9 @@
 		"DifficultyNormalLv": 4,
 		"NotesDesignerNormal": "Lightning Sword",
 		"DifficultyHardLv": 10.8,
-		"NotesDesignerHard": "Lightning Sword",
+		"NotesDesignerHard": "MEGA TiiSKR",
 		"DifficultyExtremeLv": 13.9,
-		"NotesDesignerExpert": "MEGA TiiSKR",
+		"NotesDesignerExpert": "Lightning Sword",
 		"AssetDirectory": "S04-120"
 	},
 	"4124": {
