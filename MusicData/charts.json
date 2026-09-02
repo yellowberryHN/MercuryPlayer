@@ -2914,11 +2914,11 @@
 		"NotesDesignerNormal": "mq",
 		"NotesDesignerHard": "mq",
 		"NotesDesignerExpert": "mq",
-		"NotesDesignerInferno": "-",
+		"NotesDesignerInferno": "Djäger",
 		"DifficultyNormalLv": 3,
 		"DifficultyHardLv": 8.800000190734863,
 		"DifficultyExtremeLv": 11.199999809265137,
-		"DifficultyInfernoLv": "+0",
+		"DifficultyInfernoLv": 13.6,
 		"ClearNormaRateNormal": 0.44999998807907104,
 		"ClearNormaRateHard": 0.550000011920929,
 		"ClearNormaRateExtreme": 0.800000011920929,
@@ -6694,11 +6694,11 @@
 		"NotesDesignerNormal": "るくあんす",
 		"NotesDesignerHard": "るくあんす",
 		"NotesDesignerExpert": "るくあんす",
-		"NotesDesignerInferno": "-",
+		"NotesDesignerInferno": "ゴルマス 「地獄の蝕」",
 		"DifficultyNormalLv": 3,
 		"DifficultyHardLv": 7.699999809265137,
 		"DifficultyExtremeLv": 11.5,
-		"DifficultyInfernoLv": "+0",
+		"DifficultyInfernoLv": 13.4,
 		"ClearNormaRateNormal": 0.44999998807907104,
 		"ClearNormaRateHard": 0.550000011920929,
 		"ClearNormaRateExtreme": 0.800000011920929,
@@ -10894,11 +10894,11 @@
 		"NotesDesignerNormal": "あおき",
 		"NotesDesignerHard": "あおき",
 		"NotesDesignerExpert": "とんかつあおき",
-		"NotesDesignerInferno": "-",
+		"NotesDesignerInferno": "スターリー・バニー",
 		"DifficultyNormalLv": 3,
 		"DifficultyHardLv": 10.199999809265137,
 		"DifficultyExtremeLv": 12.800000190734863,
-		"DifficultyInfernoLv": "+0",
+		"DifficultyInfernoLv": 13.8,
 		"ClearNormaRateNormal": 0.44999998807907104,
 		"ClearNormaRateHard": 0.550000011920929,
 		"ClearNormaRateExtreme": 0.800000011920929,
@@ -22594,11 +22594,11 @@
 		"NotesDesignerNormal": "タノシーストア高橋",
 		"NotesDesignerHard": "タノシーストア高橋",
 		"NotesDesignerExpert": "タノシーストア高橋",
-		"NotesDesignerInferno": "-",
+		"NotesDesignerInferno": "狐憑き",
 		"DifficultyNormalLv": 3,
 		"DifficultyHardLv": 7.900000095367432,
 		"DifficultyExtremeLv": 12.899999618530273,
-		"DifficultyInfernoLv": "+0",
+		"DifficultyInfernoLv": 13.6,
 		"ClearNormaRateNormal": 0.44999998807907104,
 		"ClearNormaRateHard": 0.550000011920929,
 		"ClearNormaRateExtreme": 0.800000011920929,
@@ -23656,6 +23656,19 @@
 		"NotesDesignerInferno": "�",
 		"AssetDirectory": "S04-030"
 	},
+	"4033": {
+		"UniqueID": 4033,
+		"MusicMessage": "SUPER☆HARAGURO☆POP",
+		"ArtistMessage": "Zekk",
+		"DifficultyNormalLv": 3,
+		"NotesDesignerNormal": "Tiiger",
+		"DifficultyHardLv": 8.7,
+		"NotesDesignerHard": "SUPER☆TIIGER",
+		"DifficultyExtremeLv": 12.8,
+		"NotesDesignerExpert": "MAGICAL♡BEAM",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-033"
+	},
 	"4034": {
 		"UniqueID": 4034,
 		"MusicMessage": "Don't Fight The Music",
@@ -23958,7 +23971,8 @@
 		"NotesDesignerHard": "Snowball",
 		"DifficultyExtremeLv": 12.8,
 		"NotesDesignerExpert": "Snowball",
-		"DifficultyInfernoLv": 0,
+		"DifficultyInfernoLv": 13.9,
+		"NotesDesignerInferno": "III:THE EMPRESS/atomsk",
 		"AssetDirectory": "S04-072"
 	},
 	"4073": {
@@ -24519,6 +24533,19 @@
 		"NotesDesignerInferno": "at♥msk × st★rry bunny [協]",
 		"AssetDirectory": "S04-133"
 	},
+	"4134": {
+		"UniqueID": 4134,
+		"MusicMessage": "Eden",
+		"ArtistMessage": "cYsmix",
+		"DifficultyNormalLv": 4,
+		"NotesDesignerNormal": "Guardian of Lucidity",
+		"DifficultyHardLv": 9.8,
+		"NotesDesignerHard": "Guardian of Lucidity",
+		"DifficultyExtremeLv": 12.5,
+		"NotesDesignerExpert": "Guardian of Lucidity",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-134"
+	},
 	"4135": {
 		"UniqueID": 4135,
 		"MusicMessage": "Fragmentary Specter Blade",
@@ -24529,7 +24556,8 @@
 		"NotesDesignerHard": "Tiiger and twis and Jaio",
 		"DifficultyExtremeLv": 13.2,
 		"NotesDesignerExpert": "Jaiouhou",
-		"DifficultyInfernoLv": 0,
+		"DifficultyInfernoLv": 13.8,
+		"NotesDesignerInferno": "ll1176",
 		"AssetDirectory": "S04-135"
 	},
 	"4136": {
@@ -24584,6 +24612,19 @@
 		"DifficultyInfernoLv": 0,
 		"AssetDirectory": "S04-139"
 	},
+	"4140": {
+		"UniqueID": 4140,
+		"MusicMessage": "Imperishable Night 2006 (2016 Refine)",
+		"ArtistMessage": "ゆうゆ / 篠螺悠那",
+		"DifficultyNormalLv": 5,
+		"NotesDesignerNormal": "オオカミ",
+		"DifficultyHardLv": 10.2,
+		"NotesDesignerHard": "オオカミ (2026 UnRefined)",
+		"DifficultyExtremeLv": 13.9,
+		"NotesDesignerExpert": "yitiao16 (gormous2026 refine)",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-140"
+	},
 	"4142": {
 		"UniqueID": 4142,
 		"MusicMessage": "Necromantic",
@@ -24624,6 +24665,19 @@
 		"DifficultyInfernoLv": 0,
 		"AssetDirectory": "S04-145"
 	},
+	"4146": {
+		"UniqueID": 4146,
+		"MusicMessage": "サドマミホリック | SadoMamiHolic",
+		"ArtistMessage": "ビートまりお(COOL&CREATE)",
+		"DifficultyNormalLv": 5,
+		"NotesDesignerNormal": "twis",
+		"DifficultyHardLv": 10.6,
+		"NotesDesignerHard": "twis",
+		"DifficultyExtremeLv": 13.7,
+		"NotesDesignerExpert": "霊夢だよ",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-146"
+	},
 	"4147": {
 		"UniqueID": 4147,
 		"MusicMessage": "Shelter",
@@ -24637,6 +24691,19 @@
 		"DifficultyInfernoLv": 12,
 		"NotesDesignerInferno": "UnoriginalUno",
 		"AssetDirectory": "S04-147"
+	},
+	"4148": {
+		"UniqueID": 4148,
+		"MusicMessage": "つるぺったん | Tsurupettan",
+		"ArtistMessage": "Silver Forest",
+		"DifficultyNormalLv": 4,
+		"NotesDesignerNormal": "Tiiger",
+		"DifficultyHardLv": 8.8,
+		"NotesDesignerHard": "Pettanger",
+		"DifficultyExtremeLv": 12.7,
+		"NotesDesignerExpert": "らおいや",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-148"
 	},
 	"4149": {
 		"UniqueID": 4149,
