@@ -5134,11 +5134,11 @@
 		"NotesDesignerNormal": "mq+うつぼ。",
 		"NotesDesignerHard": "mq+うつぼ。",
 		"NotesDesignerExpert": "mq+うつぼ。",
-		"NotesDesignerInferno": "-",
+		"NotesDesignerInferno": "D+1: THE DELAYER/ Tiiger",
 		"DifficultyNormalLv": 3,
 		"DifficultyHardLv": 8,
 		"DifficultyExtremeLv": 10.399999618530273,
-		"DifficultyInfernoLv": "+0",
+		"DifficultyInfernoLv": 13.4,
 		"ClearNormaRateNormal": 0.44999998807907104,
 		"ClearNormaRateHard": 0.550000011920929,
 		"ClearNormaRateExtreme": 0.800000011920929,
@@ -23565,6 +23565,32 @@
 		"NotesDesignerInferno": "Snowball",
 		"AssetDirectory": "S04-010"
 	},
+	"4011": {
+		"UniqueID": 4011,
+		"MusicMessage": "LubedeR",
+		"ArtistMessage": "C-Show",
+		"DifficultyNormalLv": 6,
+		"NotesDesignerNormal": "RocketW",
+		"DifficultyHardLv": 10.1,
+		"NotesDesignerHard": "RocketW",
+		"DifficultyExtremeLv": 13.5,
+		"NotesDesignerExpert": "Left:RocketW | Right:Snowball",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-011"
+	},
+	"4012": {
+		"UniqueID": 4012,
+		"MusicMessage": "マサカリブレイド | Masakari Blade",
+		"ArtistMessage": "REDALiCE",
+		"DifficultyNormalLv": 3,
+		"NotesDesignerNormal": "ADELEiNESUMMY",
+		"DifficultyHardLv": 9.7,
+		"NotesDesignerHard": "ADELEiNESUMMY",
+		"DifficultyExtremeLv": 12.6,
+		"NotesDesignerExpert": "ADELEiNESUMMY",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-012"
+	},
 	"4014": {
 		"UniqueID": 4014,
 		"MusicMessage": "Rebuff",
@@ -24744,6 +24770,33 @@
 		"DifficultyInfernoLv": 0,
 		"AssetDirectory": "S04-151"
 	},
+	"4152": {
+		"UniqueID": 4152,
+		"MusicMessage": "Don't Say Lazy",
+		"ArtistMessage": "桜高軽音部「けいおん！」",
+		"DifficultyNormalLv": 4,
+		"NotesDesignerNormal": "「紬」",
+		"DifficultyHardLv": 7.8,
+		"NotesDesignerHard": "「唯」",
+		"DifficultyExtremeLv": 10.9,
+		"NotesDesignerExpert": "「律」",
+		"DifficultyInfernoLv": 13.4,
+		"NotesDesignerInferno": "「澪」",
+		"AssetDirectory": "S04-152"
+	},
+	"4153": {
+		"UniqueID": 4153,
+		"MusicMessage": "Fighting My Way",
+		"ArtistMessage": "歌：花海咲季 (CV. 長月あおい)　作詞作曲：HIROMI　編曲：Giga「学園アイドルマスター」",
+		"DifficultyNormalLv": 5,
+		"NotesDesignerNormal": "Charting My Way",
+		"DifficultyHardLv": 9.7,
+		"NotesDesignerHard": "Charting My Way",
+		"DifficultyExtremeLv": 12.4,
+		"NotesDesignerExpert": "Charting My Way",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-153"
+	},
 	"4154": {
 		"UniqueID": 4154,
 		"MusicMessage": "春擬き | Harumodoki",
@@ -24757,6 +24810,19 @@
 		"DifficultyInfernoLv": 0,
 		"AssetDirectory": "S04-154"
 	},
+	"4155": {
+		"UniqueID": 4155,
+		"MusicMessage": "hectopascal",
+		"ArtistMessage": "小糸侑(CV：高田 憂希)＆七海燈子(CV：寿美菜子) 「やがて君になる」 より",
+		"DifficultyNormalLv": 3,
+		"NotesDesignerNormal": "Mirzam",
+		"DifficultyHardLv": 8.8,
+		"NotesDesignerHard": "Mirzam",
+		"DifficultyExtremeLv": 11.5,
+		"NotesDesignerExpert": "Mirzam",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-155"
+	},
 	"4156": {
 		"UniqueID": 4156,
 		"MusicMessage": "Hello",
@@ -24769,6 +24835,19 @@
 		"NotesDesignerExpert": "xafnzeed",
 		"DifficultyInfernoLv": 0,
 		"AssetDirectory": "S04-156"
+	},
+	"4157": {
+		"UniqueID": 4157,
+		"MusicMessage": "I believe what you said",
+		"ArtistMessage": "亜咲花 『ひぐらしのなく頃に 業』",
+		"DifficultyNormalLv": 4,
+		"NotesDesignerNormal": "Amaru",
+		"DifficultyHardLv": 8.7,
+		"NotesDesignerHard": "Rallapy.",
+		"DifficultyExtremeLv": 12.5,
+		"NotesDesignerExpert": "Rallapy.",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-157"
 	},
 	"4158": {
 		"UniqueID": 4158,
@@ -24822,6 +24901,20 @@
 		"DifficultyInfernoLv": 0,
 		"AssetDirectory": "S04-162"
 	},
+	"4163": {
+		"UniqueID": 4163,
+		"MusicMessage": "TACTIC",
+		"ArtistMessage": "Daoko",
+		"DifficultyNormalLv": 5,
+		"NotesDesignerNormal": "ユキダマ",
+		"DifficultyHardLv": 10.0,
+		"NotesDesignerHard": "ユキダマ",
+		"DifficultyExtremeLv": 12.3,
+		"NotesDesignerExpert": "転生したらユキダマだった件",
+		"DifficultyInfernoLv": 13.9,
+		"NotesDesignerInferno": "悪いユキダマじゃないよ",
+		"AssetDirectory": "S04-163"
+	},
 	"4164": {
 		"UniqueID": 4164,
 		"MusicMessage": "UNDEAD",
@@ -24835,5 +24928,32 @@
 		"DifficultyInfernoLv": 13.7,
 		"NotesDesignerInferno": "plasmougi",
 		"AssetDirectory": "S04-164"
+	},
+	"4165": {
+		"UniqueID": 4165,
+		"MusicMessage": "なんてカラフルな世界！ | What a colorful world!",
+		"ArtistMessage": "大石昌良",
+		"DifficultyNormalLv": 3,
+		"NotesDesignerNormal": "チルノ",
+		"DifficultyHardLv": 9.9,
+		"NotesDesignerHard": "チルノ",
+		"DifficultyExtremeLv": 12.0,
+		"NotesDesignerExpert": "チルノ",
+		"DifficultyInfernoLv": 13.6,
+		"NotesDesignerInferno": "チルノ",
+		"AssetDirectory": "S04-165"
+	},
+	"4166": {
+		"UniqueID": 4166,
+		"MusicMessage": "再会系女子はどうすりゃいいですか? | What Should I Do for Reunion Girls?",
+		"ArtistMessage": "綾瀬理恵",
+		"DifficultyNormalLv": 4,
+		"NotesDesignerNormal": "GomeZ",
+		"DifficultyHardLv": 9.9,
+		"NotesDesignerHard": "GomeZ",
+		"DifficultyExtremeLv": 12.8,
+		"NotesDesignerExpert": "青藍島男性　GomeZ",
+		"DifficultyInfernoLv": 0,
+		"AssetDirectory": "S04-166"
 	}
 }
